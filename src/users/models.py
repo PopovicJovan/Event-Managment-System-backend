@@ -8,7 +8,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(32), unique=True)
+    username: Mapped[str] = mapped_column(String(32))
     email: Mapped[str] = mapped_column(String(64), unique=True)
     password: Mapped[str] = mapped_column(String(256))
     role_id: Mapped[int] = mapped_column(Boolean, nullable=True)

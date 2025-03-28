@@ -1,24 +1,29 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, model_validator, field_validator, Field
 
 
 class UserBase(BaseModel):
-    username: str
+    username: str = Field(..., min_length=5, alias="username")
 
     model_config = ConfigDict(from_attributes=True)
 
 class Login(UserBase):
-    password: str
+    password: str = Field(..., min_length=8, alias="password")
 
 class Register(Login):
-    email: EmailStr
-    password_confirmation: str
+    email: str = Field(..., alias="email")
+    password_confirmation: str = Field(..., min_length=8, alias="password_confirmation")
 
-    @model_validator(mode='before')
-    def check_password_confirmation(cls, values):
-        password = values.get('password')
-        password_confirmation = values.get('password_confirmation')
 
-        if password != password_confirmation:
-            raise ValueError('Passwords do not match')
+    @field_validator("password_confirmation")
+    @classmethod
+    def validate_password_confirmation(cls, value, values):
+        if "password" in values.data and value != values.data["password"]:
+            raise ValueError("Passwords do not match")
+        return value
 
-        return values
+    @field_validator("email")
+    @classmethod
+    def validate_password_confirmation(cls, value):
+        if not '@' in value:
+            raise ValueError("Email adress is not valid")
+        return value
