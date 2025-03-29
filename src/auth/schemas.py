@@ -1,16 +1,21 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, model_validator, field_validator, Field
-
+from src.users.schemas import User as UserSchema
 
 class UserBase(BaseModel):
-    username: str = Field(..., min_length=5, alias="username")
+    email: str = Field(..., alias="email")
 
     model_config = ConfigDict(from_attributes=True)
 
 class Login(UserBase):
     password: str = Field(..., min_length=8, alias="password")
 
+class Token(BaseModel):
+    token: str = Field(...)
+    type: str = "access_token"
+
+
 class Register(Login):
-    email: str = Field(..., alias="email")
+    username: str = Field(..., min_length=5, alias="username")
     password_confirmation: str = Field(..., min_length=8, alias="password_confirmation")
 
 
@@ -27,3 +32,7 @@ class Register(Login):
         if not '@' in value:
             raise ValueError("Email adress is not valid")
         return value
+
+class AuthReturnSchema(BaseModel):
+    user: UserSchema
+    token: Token
