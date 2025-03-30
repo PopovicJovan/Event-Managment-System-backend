@@ -1,19 +1,23 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, BackgroundTasks
 from src.auth.exceptions import InvalidJWTTokenException
 from src.auth.schemas import Register, AuthReturnSchema, Login
 from src.database import database
-from src.auth.services import register_user, login_user, get_user_by_token
+from src.auth.services import register_user, login_user, get_user_by_token, google_login
 from src.users.schemas import User as UserSchema
 from src.users.services import get_user_by_id
+from src.mail.services import send_welcome_email
+from fastapi import Request
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 
 
 @router.post("/register", response_model=AuthReturnSchema)
-async def register_user_route(user: Register, db: database):
+async def register_user_route(user: Register, db: database, background_tasks: BackgroundTasks):
     try:
-        return register_user(user=user, db=db)
+        data = register_user(user=user, db=db)
+        background_tasks.add_task(send_welcome_email, data['user'])
+        return data
     except Exception as e:
         raise e
 
@@ -26,7 +30,7 @@ async def login_user_route(user: Login, db: database):
 
 
 @router.get("/me", response_model=UserSchema)
-async def get_user( db: database, authorization: str = Header(...)):
+async def get_user(db: database, authorization: str = Header(...)):
     try:
         token = authorization.split()[1]
         payload = get_user_by_token(token)
@@ -35,3 +39,12 @@ async def get_user( db: database, authorization: str = Header(...)):
         raise e
     except Exception as e:
         raise e
+
+@router.post("/google/login", response_model=AuthReturnSchema)
+async def google_login_route(db: database, authorization: str = Header(...)):
+    try:
+        token = authorization.split()[1]
+        return await google_login(db, token)
+    except Exception as e:
+        raise e
+

@@ -3,6 +3,8 @@ from src.auth.exceptions import InvalidJWTTokenException
 from src.users.models import User
 from src.config import settings
 import jwt
+from src.auth.config import auth_settings
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
