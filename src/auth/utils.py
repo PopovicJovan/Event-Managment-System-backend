@@ -1,9 +1,13 @@
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
+from google.oauth2 import id_token
+from google.auth.transport import requests
 from src.auth.exceptions import InvalidJWTTokenException
 from src.users.models import User
 from src.config import settings
 import jwt
 from src.auth.config import auth_settings
+import src.users.services as user_services
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -28,3 +32,15 @@ def decode_jwt_token(token: str) -> dict:
         return payload
     except jwt.InvalidTokenError:
         raise InvalidJWTTokenException()
+
+async def get_user_by_google_token(db: Session, token: str):
+    email = await get_user_email_by_google_token(token)
+    db_user = user_services.get_user_by_email(db=db, email=email)
+    if not db_user: return None
+    return db_user
+
+async def get_user_email_by_google_token(token: str):
+    user_info = id_token.verify_oauth2_token(
+        token, requests.Request(), auth_settings.GOOGLE_CLIENT_ID
+    )
+    return user_info.get("email")
