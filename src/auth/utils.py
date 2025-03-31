@@ -22,7 +22,8 @@ def create_access_token(user: User):
     data = {
         "id": user.id,
         "username": user.username,
-        "email": user.email
+        "email": user.email,
+        "admin": user.admin
     }
     return jwt.encode(data.copy(), key=settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 

@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Header, BackgroundTasks
+
+from src.auth.config import auth_settings
 from src.auth.exceptions import InvalidJWTTokenException
 from src.auth.schemas import Register, AuthReturnSchema, Login
 from src.database import database
@@ -6,6 +8,7 @@ from src.auth.services import register_user, login_user, get_user_by_token, goog
 from src.users.schemas import User as UserSchema
 from src.users.services import get_user_by_id
 from src.mail.services import send_welcome_email
+import requests
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -46,4 +49,6 @@ async def google_auth_route(background_tasks: BackgroundTasks, db: database, aut
         return await google_auth(db, token, background_tasks)
     except Exception as e:
         raise e
+
+
 

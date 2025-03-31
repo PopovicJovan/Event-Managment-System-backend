@@ -7,3 +7,7 @@ def get_user_by_email(db: Session, email: str) -> User | None:
 def get_user_by_id(db: Session, id: int) -> User | None:
     if not id: return None
     return db.query(User).filter(User.id == id).first()
+
+def get_all_users(db: Session):
+    return db.query(User).all()
+
