@@ -9,4 +9,5 @@ class User(UserBase):
     id: int
     username: str
     email: str
+    admin: bool
     created_at: datetime
