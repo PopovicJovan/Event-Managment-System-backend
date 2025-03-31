@@ -6,7 +6,6 @@ from src.auth.services import register_user, login_user, get_user_by_token, goog
 from src.users.schemas import User as UserSchema
 from src.users.services import get_user_by_id
 from src.mail.services import send_welcome_email
-from fastapi import Request
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -41,10 +40,10 @@ async def get_user(db: database, authorization: str = Header(...)):
         raise e
 
 @router.post("/google/auth", response_model=AuthReturnSchema)
-async def google_auth_route(db: database, authorization: str = Header(...)):
+async def google_auth_route(background_tasks: BackgroundTasks, db: database, authorization: str = Header(...)):
     try:
         token = authorization.split()[1]
-        return await google_auth(db, token)
+        return await google_auth(db, token, background_tasks)
     except Exception as e:
         raise e
 

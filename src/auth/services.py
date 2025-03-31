@@ -1,6 +1,6 @@
 import random
 import string
-from fastapi import HTTPException
+from fastapi import HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from src.auth.exceptions import InvalidCredentialsException
 from src.auth.schemas import Register, Login
@@ -9,6 +9,7 @@ from src.users.models import User
 from src.auth.utils import create_access_token, decode_jwt_token
 import src.users.services as user_services
 from src.users.exceptions import UserExistException
+from src.mail.services import send_welcome_email
 
 
 
@@ -84,11 +85,14 @@ async def google_register(db: Session, token: str):
         }
     }
 
-async def google_auth(db: Session, token: str):
+async def google_auth(db: Session, token: str, background_tasks: BackgroundTasks):
     try:
         user = await get_user_by_google_token(db, token)
         if user: return await google_login(db, token)
-        return await google_register(db, token)
+        return_data = await google_register(db, token)
+        if return_data:
+            background_tasks.add_task(send_welcome_email, return_data['user'])
+        return return_data
     except Exception as e:
         raise e
 
