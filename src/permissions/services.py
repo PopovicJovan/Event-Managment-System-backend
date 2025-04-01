@@ -18,9 +18,9 @@ def get_permission_by_name(db: Session, name: str):
 def get_permission_by_id(db: Session, permission_id: int):
     return db.query(Permission).filter(Permission.id == permission_id).first()
 
-def set_permission(db: Session, user_id: int, permission_id: int):
+def set_permission(db: Session, user_id: int, permission_name: str):
     user = user_service.get_user_by_id(db, user_id)
-    permission = get_permission_by_id(db, permission_id)
+    permission = get_permission_by_name(db, permission_name)
     if not user: raise UserNotExistException()
     if not permission: raise PermissionNotExistException()
 

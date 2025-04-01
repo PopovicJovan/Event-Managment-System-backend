@@ -18,11 +18,6 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
 def get_users(db: database, request: Request):
     return user_services.get_all_users(db)
 
-@router.get("/{user_id}", response_model=UserSchema)
-@permission_check(permission_name="view_user")
-def get_user(user_id: int, db: database, request: Request):
-    return user_services.get_user_by_id(db, user_id)
-
 @router.get("/me", response_model=UserSchema)
 def get_user(db: database, authorization: str = Header(...)):
     try:
@@ -33,3 +28,9 @@ def get_user(db: database, authorization: str = Header(...)):
         raise e
     except Exception as e:
         raise e
+
+@router.get("/{user_id}", response_model=UserSchema)
+@permission_check(permission_name="view_user")
+def get_user(user_id: int, db: database, request: Request):
+    return user_services.get_user_by_id(db, user_id)
+

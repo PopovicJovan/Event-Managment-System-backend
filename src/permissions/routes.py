@@ -12,11 +12,11 @@ def get_permissions(db: database):
     except Exception as e:
         raise e
 
-@router.post("/{user_id}/assign/{permission_id}")
+@router.post("/{user_id}/assign/{permission_name}")
 @permission_check(permission_name="set_permissions")
-def assign_permission(db: database, user_id: int, permission_id: int, request: Request):
+def assign_permission(db: database, user_id: int, permission_name: str, request: Request):
     try:
-        set_permission(db, user_id, permission_id)
+        set_permission(db, user_id, permission_name)
     except Exception as e:
         raise e
 

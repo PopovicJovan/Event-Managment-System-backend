@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from src.auth.exceptions import InvalidCredentialsException
 from src.auth.schemas import Register, Login
 from src.auth.utils import hash_password, verify_password, get_user_by_google_token, get_user_email_by_google_token
+from src.permissions.utils import set_register_user_permissions
 from src.users.models import User
 from src.auth.utils import create_access_token, decode_jwt_token
 import src.users.services as user_services
@@ -27,6 +28,7 @@ def register_user(db: Session, user: Register) -> dict:
     db.commit()
     db.refresh(db_user)
 
+    set_register_user_permissions(db, db_user)
 
     return {
         "user": db_user,
@@ -76,6 +78,8 @@ def google_register(db: Session, token: str):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+
+    set_register_user_permissions(db, db_user)
 
     return {
         "user": db_user,
