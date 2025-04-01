@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from src.database import Base
 from src.config import settings
 from src.users.models import User
+from src.permissions.models import Permission, user_permissions
 
 
 

@@ -17,7 +17,7 @@ conf = ConnectionConfig(
         )
 
 
-async def send_registration_email(recipient: User):
+def send_registration_email(recipient: User):
     with open("./src/templates/email/registration.html", "r", encoding="utf-8") as file:
         html_content = file.read()
 
@@ -31,4 +31,4 @@ async def send_registration_email(recipient: User):
     )
 
     fm = FastMail(conf)
-    await fm.send_message(message)
+    fm.send_message(message)

@@ -55,9 +55,9 @@ def login_user(db: Session, login_data: Login) -> dict:
 def get_user_by_token(token: str) -> dict:
     return decode_jwt_token(token)
 
-async def google_login(db: Session, token: str):
+def google_login(db: Session, token: str):
     try:
-        db_user = await get_user_by_google_token(db, token)
+        db_user = get_user_by_google_token(db, token)
         return {
             "user": db_user,
             "token": {
@@ -69,8 +69,8 @@ async def google_login(db: Session, token: str):
         raise HTTPException(status_code=400, detail=f"Authentication failed: {str(e)}")
 
 
-async def google_register(db: Session, token: str):
-    email = await get_user_email_by_google_token(token)
+def google_register(db: Session, token: str):
+    email = get_user_email_by_google_token(token)
     username = ''.join(random.choices(string.ascii_letters + string.digits, k=8))  # random string , length 8 char
     db_user = User(username=username, email=email)
     db.add(db_user)
@@ -85,11 +85,11 @@ async def google_register(db: Session, token: str):
         }
     }
 
-async def google_auth(db: Session, token: str, background_tasks: BackgroundTasks):
+def google_auth(db: Session, token: str, background_tasks: BackgroundTasks):
     try:
-        user = await get_user_by_google_token(db, token)
-        if user: return await google_login(db, token)
-        return_data = await google_register(db, token)
+        user = get_user_by_google_token(db, token)
+        if user: return google_login(db, token)
+        return_data = google_register(db, token)
         if return_data:
             background_tasks.add_task(send_welcome_email, return_data['user'])
         return return_data

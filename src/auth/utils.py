@@ -34,13 +34,13 @@ def decode_jwt_token(token: str) -> dict:
     except jwt.InvalidTokenError:
         raise InvalidJWTTokenException()
 
-async def get_user_by_google_token(db: Session, token: str):
-    email = await get_user_email_by_google_token(token)
+def get_user_by_google_token(db: Session, token: str):
+    email = get_user_email_by_google_token(token)
     db_user = user_services.get_user_by_email(db=db, email=email)
     if not db_user: return None
     return db_user
 
-async def get_user_email_by_google_token(token: str):
+def get_user_email_by_google_token(token: str):
     user_info = id_token.verify_oauth2_token(
         token, requests.Request(), auth_settings.GOOGLE_CLIENT_ID
     )
